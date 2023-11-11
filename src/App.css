@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.doc{
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    text-decoration-line: underline;
+    text-decoration-style: wavy;
+    text-decoration-color: rgb(81, 192, 137);
+}
+
+.cla{
+    font-family: 'Roboto', sans-serif;
+}

@@ -12,19 +12,14 @@ import {
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom";
+import { TextField } from "@mui/material";
+import plusIcon from "../public/plus-square.svg";
+import "./App.css";
 
 function Home() {
   const messageRef = useRef();
   const ref = collection(firestore, "messages");
   const [data, setData] = useState(null);
-
-  // for quill -----------------------------------------------------------
-  const [isQuillOpen, setIsQuillOpen] = useState(false);
-  const [quillContent, setQuillContent] = useState("");
-  const [currentDocumentId, setCurrentDocumentId] = useState(null);
-  const [currentDocumentContent, setCurrentDocumentContent] = useState("");
-
-  // ---------------------------------------------------------------------
 
   const fetchData = async () => {
     const db = getFirestore();
@@ -50,6 +45,8 @@ function Home() {
 
   const handleSave = async (e) => {
     e.preventDefault();
+
+    if (!messageRef.current.value) return;
 
     let data = {
       message: messageRef.current.value,
@@ -80,48 +77,57 @@ function Home() {
   const navigate = useNavigate();
 
   return (
-    <div className="p-5 w-2/4 mx-auto mt-10">
-      <form className="mb-5" onSubmit={handleSave}>
-        <input
-          className="border border-green-500"
-          type="text"
-          ref={messageRef}
-          placeholder="Type a Message..."
-        />
-        <button
-          className="py-1 px-4 rounded ml-3 bg-green-900 text-white"
-          type="submit"
+    <div className="p-8 sm:w-2/3 md:w-3/4 flex border-dashed flex-col w-11/12 rounded border-4 border-green-500  mx-auto mt-10">
+      <h1 className="text-3xl mb-20 text-center font-bold doc">
+        Add your <span className="text-green-600">Document</span>
+      </h1>
+      <div className="head w-full flex  ">
+        <form
+          className="mb-5 flex w-full  flex-col md:flex-row gap-2 mx-auto"
+          onSubmit={handleSave}
         >
-          Save
-        </button>
-      </form>
-      <ul>
+          <TextField
+            style={{ flexGrow: 1 }}
+            id="outlined-basic"
+            inputRef={messageRef}
+            label="Enter Document Title"
+            variant="outlined"
+          />
+          <button
+            className="md:py-1 py-4 sm:px-4 flex justify-center items-center rounded md:ml-3 bg-green-600 text-black font-bold"
+            type="submit"
+          >
+            Add Document
+            <img className="ml-2" src={plusIcon} alt="" />
+          </button>
+        </form>
+      </div>
+      <div className="body flex  w-full mt-5 mx-auto gap-2 justify-center flex-wrap">
         {data &&
           data.map((item) => (
-            <li className="mb-3" key={item.id}>
+            <div
+              style={{ width: "349px" }}
+              className=" border uppercase rounded border-green-600  bg-slate-100 p-2 flex justify-between items-center font-bold"
+              key={item.id}
+            >
               {item.message}
-              <button
-                onClick={() => navigate(`/edit/${item.id}`)}
-                className="py-1 rounded px-6 ml-5 bg-green-500 text-white"
-              >
-                Add
-              </button>
-              <button
-                className="ml-5 bg-red-300 py-1 px-4 rounded"
-                onClick={() => handleDelete(item.id)}
-              >
-                Delete
-              </button>
-            </li>
+              <div className="btn">
+                <button
+                  onClick={() => navigate(`/edit/${item.id}`)}
+                  className="py-1 rounded font-thin px-2 ml-5"
+                >
+                  <i className="fa-solid fa-pencil text-green-600 fancy"></i>
+                </button>
+                <button
+                  className="ml-2  font-normal py-1 px-2 rounded"
+                  onClick={() => handleDelete(item.id)}
+                >
+                  <i className="fa-regular text-red-600 fa-trash-can"></i>
+                </button>
+              </div>
+            </div>
           ))}
-      </ul>
-      <ReactQuill
-        className="w-3/4 mx-auto"
-        theme="snow"
-        value={quillContent}
-        onChange={setQuillContent}
-      />
-      <p>{quillContent}</p>
+      </div>
     </div>
   );
 }
