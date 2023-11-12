@@ -15,13 +15,16 @@ import { useNavigate } from "react-router-dom";
 import { TextField } from "@mui/material";
 import plusIcon from "../public/plus-square.svg";
 import "./App.css";
+import SyncLoaderr from "./SyncLoaderr";
 
 function Home() {
   const messageRef = useRef();
   const ref = collection(firestore, "messages");
   const [data, setData] = useState(null);
+  const [loading,setLoading] = useState(false);
 
   const fetchData = async () => {
+    setLoading(true)
     const db = getFirestore();
     const collectionRef = collection(db, "messages"); // Replace 'yourCollection' with the actual collection name
 
@@ -34,6 +37,7 @@ function Home() {
       });
 
       setData(data);
+      setLoading(false)
     } catch (e) {
       console.error("Error getting documents: ", e);
     }
@@ -45,8 +49,9 @@ function Home() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-
+    
     if (!messageRef.current.value) return;
+    setLoading(true)
 
     let data = {
       message: messageRef.current.value,
@@ -55,6 +60,7 @@ function Home() {
 
     try {
       addDoc(ref, data);
+      setLoading(false)
     } catch (e) {
       console.log(e);
     }
@@ -62,11 +68,13 @@ function Home() {
   };
 
   const handleDelete = async (messageId) => {
+    setLoading(true)
     const db = getFirestore();
     const messageRef = doc(db, "messages", messageId); // Replace 'messages' with your actual collection name
 
     try {
       await deleteDoc(messageRef);
+      setLoading(false)
       fetchData();
       console.log("Document successfully deleted!");
     } catch (e) {
@@ -78,7 +86,7 @@ function Home() {
 
   return (
     <div className="p-8 sm:w-2/3 md:w-3/4 flex border-dashed flex-col w-11/12 rounded border-4 border-green-500  mx-auto mt-10">
-      <h1 className="text-3xl mb-20 text-center font-bold doc">
+      <h1 className="text-4xl sqaure mb-20 text-center font-bold doc">
         Add your <span className="text-green-600">Document</span>
       </h1>
       <div className="head w-full flex  ">
@@ -87,6 +95,27 @@ function Home() {
           onSubmit={handleSave}
         >
           <TextField
+           sx={{
+            '& .MuiInputLabel-root': {
+              color: 'green important', // Set the color of the label
+            },
+            '& label': {
+              color: 'green important', // Set the color of the label
+            },
+            '& fieldset': {
+              borderColor: 'green', // Set the outline color
+            },
+            '&:hover fieldset': {
+              borderColor: 'green !important', // Set the outline color on hover
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: 'green !important', // Set the outline color on focus
+            },
+            '&.Mui-focused:hover fieldset': {
+              borderColor: 'green !important', // Set the outline color on focus and hover
+            },
+  
+          }}
             style={{ flexGrow: 1 }}
             id="outlined-basic"
             inputRef={messageRef}
@@ -128,6 +157,9 @@ function Home() {
             </div>
           ))}
       </div>
+    {
+      loading && <SyncLoaderr />
+    }
     </div>
   );
 }
